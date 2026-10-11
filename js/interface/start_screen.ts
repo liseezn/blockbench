@@ -223,7 +223,7 @@ onVueSetup(async function() {
 		data() {return {
 			formats: Formats,
 			loaders: ModelLoader.loaders,
-			selected_format_id: '',
+			selected_format_id: 'skin',
 			viewed_format: null,
 			recent: isApp ? recent_projects : [] as RecentProjectData[],
 			list_type: StateMemory.start_screen_list_type || 'grid',
