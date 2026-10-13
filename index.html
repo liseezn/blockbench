@@ -256,14 +256,12 @@
 				importCape.textContent = '导入披风纹理到当前项目';
 				importCape.style.cssText = 'display:block;background:#7775ef;color:white;border:0;border-radius:6px;padding:7px 10px;margin-bottom:8px;cursor:pointer';
 				importCape.onclick = () => {
-					if (!window.Texture || !window.Project) {
+					if (!window.Blockbench || !Blockbench.pixcapeImportCapeTexture) {
 						window.alert('请先在 Minecraft 皮肤向导中确认模型，再导入披风纹理。');
 						return;
 					}
 					try {
-						const texture = new Texture({name: payload.capeName || 'Pixcape Cape'});
-						texture.fromDataURL(payload.capeDataUrl).add(false);
-						texture.select();
+						if (!Blockbench.pixcapeImportCapeTexture(payload)) throw new Error('No active skin project');
 						if (window.Blockbench && Blockbench.showQuickMessage) Blockbench.showQuickMessage('披风纹理已添加到当前项目纹理列表。');
 					} catch (error) {
 						console.error('Pixcape cape import failed', error);
@@ -282,11 +280,11 @@
 				lastImport = Date.now();
 				showCapePanel(payload);
 				for (let attempt = 0; attempt < 120; attempt++) {
-					if (window.Blockbench && Blockbench.setup_successful && window.Formats && Formats.skin && Formats.skin.setup_dialog) break;
+					if (window.Blockbench && Blockbench.setup_successful && Blockbench.pixcapeOpenSkinPreset) break;
 					await new Promise(resolve => setTimeout(resolve, 250));
 				}
-				const dialog = window.Formats && Formats.skin && Formats.skin.setup_dialog;
-				if (!dialog) {
+				const openSkinPreset = window.Blockbench && Blockbench.pixcapeOpenSkinPreset;
+				if (!openSkinPreset) {
 					Blockbench && Blockbench.showQuickMessage && Blockbench.showQuickMessage('Pixcape 皮肤已收到，但当前无法打开 Minecraft 皮肤向导。');
 					return;
 				}
@@ -296,13 +294,7 @@
 					content: payload.skinDataUrl,
 					no_file: true
 				};
-				dialog.show();
-				dialog.setFormValues({
-					model: payload.modelType === 'alex' ? 'alex' : 'steve',
-					texture_source: 'upload_texture',
-					texture_file: file,
-					pose: true
-				});
+				openSkinPreset(file, payload.modelType === 'alex' ? 'alex' : 'steve');
 				if (window.Blockbench && Blockbench.showQuickMessage) {
 					Blockbench.showQuickMessage('已接收 Pixcape 预制皮肤；确认向导即可开始编辑模型和纹理。');
 				}
