@@ -1,0 +1,41 @@
+/* Pixcape Studio identity layer. Keep Blockbench's editor layout and controls intact. */
+@layer base {
+  header #corner_logo {
+    display: flex;
+    align-items: center;
+    min-width: 132px;
+    padding: 0 10px;
+  }
+  header #corner_logo .pixcape_logo {
+    display: block;
+    width: 128px;
+    max-width: 100%;
+    height: auto;
+    object-fit: contain;
+  }
+  #start_screen {
+    background:
+      radial-gradient(ellipse at 50% 0%, rgba(124, 58, 237, .12), transparent 48%),
+      linear-gradient(180deg, var(--color-ui) 0%, var(--color-dark) 68%);
+  }
+  #start_screen .start_screen_section {
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  #start_screen .start_screen_section h2 {
+    letter-spacing: -.02em;
+  }
+  #start_screen .format_entry.selected {
+    outline: 1px solid color-mix(in srgb, var(--color-accent) 58%, transparent);
+    outline-offset: -1px;
+  }
+  @media (max-width: 640px) {
+    header #corner_logo {
+      min-width: 94px;
+      padding: 0 5px;
+    }
+    header #corner_logo .pixcape_logo {
+      width: 92px;
+    }
+  }
+}

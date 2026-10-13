@@ -1,4 +1,21 @@
-# Blockbench
+# Pixcape Studio
+
+Pixcape Studio is a Minecraft skin and cape editing-focused derivative of [Blockbench](https://github.com/JannisX11/blockbench). It keeps Blockbench's established editing engine and Minecraft skin-model support, with Pixcape branding and a skin-first startup experience.
+
+## Web deployment
+
+- Local development: `npm ci` then `npm run serve`
+- Production build: `npm ci` then `npm run build-web`
+- Docker: `docker build -t pixcape-studio .`, then run the container on port `8080`
+- Zeabur: deploy this repository using the Dockerfile; the included Nginx configuration listens on port `8080`
+
+The CI workflow runs the web build and checks that `dist/bundle.js` is generated. The original Blockbench engine and its Minecraft skin tools remain the foundation; Pixcape-specific UI changes are maintained on the `pixcape/skin-cape-editor` branch.
+
+## Upstream and license
+
+Pixcape Studio is based on Blockbench by JannisX11 and contributors. The upstream source is available at https://github.com/JannisX11/blockbench. Blockbench is licensed under **GPL-3.0-or-later**; this derivative retains the upstream license and notices. See [LICENSE.MD](LICENSE.MD) for the license terms.
+
+---
 
 Blockbench is a free and open source model editor for low-poly models with pixel art textures.
 Models can be exported into standardized formats, to be shared, rendered, 3D-printed, or used in game engines. There are also multiple dedicated formats for Minecraft Java and Bedrock Edition with format-specific features. 
