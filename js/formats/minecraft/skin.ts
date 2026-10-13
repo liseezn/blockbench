@@ -581,6 +581,8 @@ format.setup_dialog = skin_dialog;
 // the separately served parent workspace can hand off the selected preset.
 const PixcapeBlockbench = Blockbench as any;
 PixcapeBlockbench.pixcapeOpenSkinPreset = (file: any, modelType: 'steve' | 'alex', capePayload?: {capeDataUrl?: string, capeName?: string}) => {
+	// Populate and confirm the native Minecraft skin wizard in one operation.
+	// Users should land directly in an editable project, with no manual New Project step.
 	skin_dialog.show();
 	skin_dialog.setFormValues({
 		model: modelType === 'alex' ? 'alex' : 'steve',
@@ -588,11 +590,23 @@ PixcapeBlockbench.pixcapeOpenSkinPreset = (file: any, modelType: 'steve' | 'alex
 		texture_file: file,
 		pose: true
 	});
-	// Confirm automatically so the user lands directly in the editable skin model,
-	// instead of having to create/confirm a project manually.
 	skin_dialog.confirm();
+
 	if (capePayload?.capeDataUrl && capePayload.capeDataUrl.startsWith('data:image/png;base64,')) {
-		PixcapeBlockbench.pixcapeImportCapeTexture(capePayload);
+		let attempts = 0;
+		const importCapeWhenReady = () => {
+			attempts++;
+			if (PixcapeBlockbench.pixcapeImportCapeTexture(capePayload)) {
+				Blockbench.showQuickMessage('Pixcape 披风纹理已加入当前项目。', 2500);
+				return;
+			}
+			if (attempts < 30) {
+				setTimeout(importCapeWhenReady, 100);
+			} else {
+				Blockbench.showQuickMessage('皮肤项目已创建；披风纹理可通过旁边的下载链接单独导入。', 3500);
+			}
+		};
+		setTimeout(importCapeWhenReady, 0);
 	}
 };
 PixcapeBlockbench.pixcapeImportCapeTexture = (payload: {capeDataUrl: string, capeName?: string}) => {
