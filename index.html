@@ -222,5 +222,76 @@
 			document.getElementById('loading_error_message').innerHTML = 'No loading errors...'
 		}
 	</script>
+
+	<script>
+		// Pixcape bridge: accept a composed skin texture from the parent workspace.
+		(function () {
+			let lastImport = 0;
+			function showCapePanel(payload) {
+				if (!payload.capeDataUrl) return;
+				let panel = document.getElementById('pixcape_cape_handoff');
+				if (!panel) {
+					panel = document.createElement('div');
+					panel.id = 'pixcape_cape_handoff';
+					panel.style.cssText = 'position:fixed;right:16px;bottom:42px;z-index:100000;background:#20232b;color:#f5f6fa;border:1px solid #454955;border-radius:10px;padding:12px 14px;box-shadow:0 8px 28px #0008;font:13px/1.45 system-ui,sans-serif;max-width:280px';
+					document.body.appendChild(panel);
+				}
+				panel.replaceChildren();
+				const title = document.createElement('strong');
+				title.textContent = 'Pixcape 披风纹理已传入';
+				title.style.display = 'block';
+				title.style.marginBottom = '6px';
+				const text = document.createElement('div');
+				text.textContent = (payload.capeName || '披风') + ' · PNG';
+				text.style.marginBottom = '9px';
+				const link = document.createElement('a');
+				link.href = payload.capeDataUrl;
+				link.download = payload.capeName || 'pixcape-cape.png';
+				link.textContent = '下载披风纹理';
+				link.style.cssText = 'display:inline-block;background:#7775ef;color:white;text-decoration:none;padding:6px 10px;border-radius:6px;margin-right:8px';
+				const close = document.createElement('button');
+				close.textContent = '关闭';
+				close.style.cssText = 'background:transparent;color:#d4d6df;border:1px solid #555b69;border-radius:6px;padding:5px 8px;cursor:pointer';
+				close.onclick = () => panel.remove();
+				panel.append(title, text, link, close);
+			}
+			async function receivePixcapePreset(payload) {
+				if (!payload || typeof payload.skinDataUrl !== 'string' || !payload.skinDataUrl.startsWith('data:image/png;base64,')) return;
+				if (Date.now() - lastImport < 500) return;
+				lastImport = Date.now();
+				showCapePanel(payload);
+				for (let attempt = 0; attempt < 120; attempt++) {
+					if (window.Blockbench && Blockbench.setup_successful && window.Formats && Formats.skin && Formats.skin.setup_dialog) break;
+					await new Promise(resolve => setTimeout(resolve, 250));
+				}
+				const dialog = window.Formats && Formats.skin && Formats.skin.setup_dialog;
+				if (!dialog) {
+					Blockbench && Blockbench.showQuickMessage && Blockbench.showQuickMessage('Pixcape 皮肤已收到，但当前无法打开 Minecraft 皮肤向导。');
+					return;
+				}
+				const file = {
+					name: payload.skinName || 'pixcape-preset-skin.png',
+					path: payload.skinName || 'pixcape-preset-skin.png',
+					content: payload.skinDataUrl,
+					no_file: true
+				};
+				dialog.show();
+				dialog.setFormValues({
+					model: payload.modelType === 'alex' ? 'alex' : 'steve',
+					texture_source: 'upload_texture',
+					texture_file: file,
+					pose: true
+				});
+				if (window.Blockbench && Blockbench.showQuickMessage) {
+					Blockbench.showQuickMessage('已接收 Pixcape 预制皮肤；确认向导即可开始编辑模型和纹理。');
+				}
+			}
+			window.addEventListener('message', event => {
+				if (event.source !== window.parent || event.origin !== window.location.origin) return;
+				if (event.data && event.data.type === 'pixcape:import-preset') receivePixcapePreset(event.data.payload);
+			});
+		})();
+	</script>
+
 </body>
 </html>
