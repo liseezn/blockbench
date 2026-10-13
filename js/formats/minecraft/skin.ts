@@ -577,6 +577,26 @@ export const skin_dialog = new Dialog({
 // @ts-ignore
 format.setup_dialog = skin_dialog;
 
+// Pixcape bridge hooks are exposed through the supported Blockbench API object so
+// the separately served parent workspace can hand off the selected preset.
+const PixcapeBlockbench = Blockbench as any;
+PixcapeBlockbench.pixcapeOpenSkinPreset = (file: any, modelType: 'steve' | 'alex') => {
+	skin_dialog.show();
+	skin_dialog.setFormValues({
+		model: modelType === 'alex' ? 'alex' : 'steve',
+		texture_source: 'upload_texture',
+		texture_file: file,
+		pose: true
+	});
+};
+PixcapeBlockbench.pixcapeImportCapeTexture = (payload: {capeDataUrl: string, capeName?: string}) => {
+	if (!Project || !payload?.capeDataUrl?.startsWith('data:image/png;base64,')) return false;
+	const texture = new Texture({name: payload.capeName || 'Pixcape Cape'});
+	texture.fromDataURL(payload.capeDataUrl).add(false);
+	texture.select();
+	return true;
+};
+
 type SkinPose = {
 	name: string
 	data: SkinPoseData
