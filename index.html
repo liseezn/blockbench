@@ -243,17 +243,38 @@
 				title.style.marginBottom = '6px';
 				const text = document.createElement('div');
 				text.textContent = (payload.capeName || '披风') + ' · PNG';
-				text.style.marginBottom = '9px';
+				text.style.marginBottom = '6px';
+				const clothing = document.createElement('div');
+				clothing.textContent = '披肩：' + (payload.shawlName || '未选择') + ' · 外套：' + (payload.coatName || '未选择');
+				clothing.style.cssText = 'color:#b9bdc9;font-size:12px;margin-bottom:9px';
 				const link = document.createElement('a');
 				link.href = payload.capeDataUrl;
 				link.download = payload.capeName || 'pixcape-cape.png';
-				link.textContent = '下载披风纹理';
-				link.style.cssText = 'display:inline-block;background:#7775ef;color:white;text-decoration:none;padding:6px 10px;border-radius:6px;margin-right:8px';
+				link.textContent = '下载披风 PNG';
+				link.style.cssText = 'display:inline-block;background:#454955;color:white;text-decoration:none;padding:6px 10px;border-radius:6px;margin-right:6px;margin-bottom:6px';
+				const importCape = document.createElement('button');
+				importCape.textContent = '导入披风纹理到当前项目';
+				importCape.style.cssText = 'display:block;background:#7775ef;color:white;border:0;border-radius:6px;padding:7px 10px;margin-bottom:8px;cursor:pointer';
+				importCape.onclick = () => {
+					if (!window.Texture || !window.Project) {
+						window.alert('请先在 Minecraft 皮肤向导中确认模型，再导入披风纹理。');
+						return;
+					}
+					try {
+						const texture = new Texture({name: payload.capeName || 'Pixcape Cape'});
+						texture.fromDataURL(payload.capeDataUrl).add(false);
+						texture.select();
+						if (window.Blockbench && Blockbench.showQuickMessage) Blockbench.showQuickMessage('披风纹理已添加到当前项目纹理列表。');
+					} catch (error) {
+						console.error('Pixcape cape import failed', error);
+						window.alert('披风纹理导入失败，请使用“下载披风 PNG”后手动导入。');
+					}
+				};
 				const close = document.createElement('button');
 				close.textContent = '关闭';
 				close.style.cssText = 'background:transparent;color:#d4d6df;border:1px solid #555b69;border-radius:6px;padding:5px 8px;cursor:pointer';
 				close.onclick = () => panel.remove();
-				panel.append(title, text, link, close);
+				panel.append(title, text, clothing, link, importCape, close);
 			}
 			async function receivePixcapePreset(payload) {
 				if (!payload || typeof payload.skinDataUrl !== 'string' || !payload.skinDataUrl.startsWith('data:image/png;base64,')) return;
