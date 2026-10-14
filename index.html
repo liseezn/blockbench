@@ -264,6 +264,7 @@
 				panel.append(close);
 			}
 			async function receivePixcapePreset(payload) {
+				if (window.__pixcapeLanguageReady) await window.__pixcapeLanguageReady;
 				if (!payload || typeof payload.skinDataUrl !== 'string' || !payload.skinDataUrl.startsWith('data:image/png;base64,')) return;
 				if (Date.now() - lastImport < 500) return;
 				lastImport = Date.now();
