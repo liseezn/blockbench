@@ -298,19 +298,13 @@
 						for (let attempt = 0; attempt < 120 && !window.Language; attempt++) {
 							await new Promise(resolve => setTimeout(resolve, 100));
 						}
-						if (!window.Language) return;
+						if (!window.Language || window.Language.code === code) return;
 						try {
-							const response = await fetch('lang/' + code + '.json');
-							if (!response.ok) return;
-							window.Language.data = await response.json();
-							window.Language.code = code;
-						document.documentElement.lang = code;
-							// Update currently mounted static translation labels; future UI uses the new Language.data.
-							document.querySelectorAll('.tl').forEach(element => {
-								const key = element.textContent.trim();
-							const translated = window.tl ? window.tl(key) : key;
-							if (translated && translated !== key) element.textContent = translated;
-							});
+							const stored = JSON.parse(localStorage.getItem('settings') || '{}');
+						stored.language = Object.assign({}, stored.language || {}, {value: code});
+							localStorage.setItem('settings', JSON.stringify(stored));
+							// Reload once so Vue menus and dialogs initialize in the selected language.
+							window.location.reload();
 						} catch (error) {
 							console.warn('Pixcape language sync failed:', error);
 						}
