@@ -1,3 +1,5 @@
+import { Texture } from './texturing/textures';
+
 /**
  * Pixcape-to-Blockbench bridge.
  * Accepts only same-origin messages and imports validated PNG data URLs as textures.
@@ -9,11 +11,7 @@
     /^data:image\/png;base64,[A-Za-z0-9+/=]+$/.test(value);
 
   const importTexture = (name, dataUrl) => {
-    const TextureClass = window.Texture;
-    if (typeof TextureClass !== 'function') {
-      throw new Error('Blockbench texture API is not ready');
-    }
-    const texture = new TextureClass({ name: String(name || 'pixcape-import.png').slice(0, 160) });
+    const texture = new Texture({ name: String(name || 'pixcape-import.png').slice(0, 160) });
     texture.fromDataURL(dataUrl);
     texture.add(true, true);
     if (typeof texture.select === 'function') texture.select();
