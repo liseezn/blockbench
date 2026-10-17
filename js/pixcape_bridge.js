@@ -13,7 +13,11 @@ import { Texture } from './texturing/textures';
   const importTexture = (name, dataUrl) => {
     const texture = new Texture({ name: String(name || 'pixcape-import.png').slice(0, 160) });
     texture.fromDataURL(dataUrl);
-    texture.add(true, true);
+    // A preset import can arrive before Blockbench's undo system is attached to
+    // the active project. Texture.add(true) calls Undo.initEdit() synchronously
+    // and throws when Project.undo is not initialized. Add the imported asset
+    // without opening an undo transaction; the import remains available to edit.
+    texture.add(false, true);
     if (typeof texture.select === 'function') texture.select();
     return texture;
   };
